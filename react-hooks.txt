@@ -1,0 +1,54 @@
+Understanding React Hooks by Maximilian Schwarzmuller 
+
+What are React Hooks ? 
+
+It is a new feature that was added in React 16.8 
+Allows you to create every component as a functional component. 
+
+They have nothing to do with the React Lifecycle hooks 
+
+With React hooks sharing (stateful) logic between components 
+becomes easier 
+
+From class to () => 
+
+class components                    Functional Components 
+
+state + setState(...)               useState(...) allows you to manage state in your component 
+
+It is recommended and the best approach to have as many presentational components as possible 
+and only some of the container components that have state in them that can interact with Redux for 
+example 
+
+React 16.8 ships with main React Hooks and all these naming of the hooks 
+start with use and then followed by the name of the hook 
+
+like useState,usePersist etc 
+
+import { useState } from 'react';
+
+const [state,setState] = useState('some default state or value')
+
+Now its the crux 
+how to add react-hooks in a component that has lifecycle hooks 
+and where we want to convert it into a functional component. 
+
+For making async calls we need to make use of the useEffect() react hook 
+to cause side effects since async calls are also side effects and therefore 
+we need to use the useEffect() for our calls to take place 
+Things like HTTP requests that happen in your components and it works 
+a bit different than the componentDidMount and I will show you what 
+is the difference 
+
+useEffect is triggered after the component has been rendered to the 
+DOM just like the componentDidMount had for class based components 
+
+useEffect runs more often compared to componentDidMount and you can 
+control it 
+
+
+
+
+
+
+
