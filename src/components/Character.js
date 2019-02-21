@@ -1,12 +1,33 @@
-import React, { useState, useEffect } from "react";
-
+import React, { useEffect } from "react";
 import Summary from "./Summary";
+import { useHttp } from "../hooks/http";
 
 const Character = props => {
   // state = { loadedCharacter: {}, isLoading: false };
+  const [isLoading, fetchedData] = useHttp(
+    `https://swapi.co/api/people/${props.selectedChar}`,
+    [props.selectedChar]
+  );
+  let loadedCharacter = null;
+  if (fetchedData) {
+    loadedCharacter = {
+      id: props.selectedChar,
+      name: fetchedData.name,
+      height: fetchedData.height,
+      colors: {
+        hair: fetchedData.hair_color,
+        skin: fetchedData.skin_color
+      },
+      gender: fetchedData.gender,
+      movieCount: fetchedData.films.length
+    };
+  }
 
-  const [loadedCharacter, setLoadedCharacter] = useState({});
-  const [isLoading, setLoading] = useState(false);
+  useEffect(() => {
+    return () => {
+      console.log("component did unmount");
+    };
+  }, []);
 
   // shouldComponentUpdate(nextProps, nextState) {
   //   console.log('shouldComponentUpdate');
@@ -23,40 +44,7 @@ const Character = props => {
   //     this.fetchData();
   //   }
   // }
-  const fetchData = () => {
-    console.log(
-      "Sending Http request for new character with id " + props.selectedChar
-    );
-    // this.setState({ isLoading: true });
-    setLoading(true);
-    fetch("https://swapi.co/api/people/" + props.selectedChar)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error("Could not fetch person!");
-        }
-        return response.json();
-      })
-      .then(charData => {
-        const loadedCharacter = {
-          id: props.selectedChar,
-          name: charData.name,
-          height: charData.height,
-          colors: {
-            hair: charData.hair_color,
-            skin: charData.skin_color
-          },
-          gender: charData.gender,
-          movieCount: charData.films.length
-        };
-        setLoading(false);
-        setLoadedCharacter(loadedCharacter);
-        // this.setState({ loadedCharacter: loadedCharacter, isLoading: false });
-      })
-      .catch(err => {
-        console.log(err);
-        setLoading(false);
-      });
-  };
+
   //useEffect to replace componentDidMount
   // useEffect(() => {
   //   fetchData();
@@ -66,27 +54,9 @@ const Character = props => {
   //This is just like the componentDidUpdate lifecycle hook
   //This will run for one render as well as for subsequent renders as well
 
-  useEffect(() => {
-    //Fetch the character if the selectedCharacter changes
-    fetchData();
-    return () => {
-      //this code will fire write before the useEffect runs next time
-      //THIS CODE IS RESPONSIBLE FOR DOING THE CLEANUP TASK as componentWillUnmount used to do
-      console.log("Cleaning up....");
-    };
-  }, [props.selectedChar]);
-  // componentDidMount() {
-  //   this.fetchData();
-  // }
-
-  //useEffect will also do the cleanup
-  // componentWillUnmount() {
-  //   console.log('Too soon...');
-  // }
-
   let content = <p>Loading Character...</p>;
 
-  if (!isLoading && loadedCharacter.id) {
+  if (!isLoading && loadedCharacter) {
     content = (
       <Summary
         name={loadedCharacter.name}
@@ -97,10 +67,13 @@ const Character = props => {
         movieCount={loadedCharacter.movieCount}
       />
     );
-  } else if (!isLoading && !loadedCharacter.id) {
+  } else if (!isLoading && !loadedCharacter) {
     content = <p>Failed to fetch character.</p>;
   }
   return content;
 };
 
-export default Character;
+//Whenever the props change only then it will re-render the component
+//ELIMINATES THE USE OF shouldComponentUpdate in functional components by using
+//memoization
+export default React.memo(Character);

@@ -76,3 +76,25 @@ useEffect(() => {
 },[props.selectedChar])
 
 
+componentDidMount for class based components 
+
+In functional components this is handled using useEffect({},[]);
+
+componentDidUpdate for class based components 
+
+In functional components this is handled using useEffect({},[props.selectedChar])
+This will also work for componentDidMount the very first time and then when the props change 
+it will fire useState for every subsequent change and fetch data 
+
+How to implement shouldComponentDidUpdate in functional components ?  
+
+RULES FOR Hooks
+
+You should always call hooks at the top level of the function 
+and not at the middle or bottom of the function 
+It should not be nested inside another function call 
+Not nested inside an if statement at all
+
+Lastly : You do not have to switch ! React Hooks work alongside 
+class based components and class based components are not removed from 
+React 
