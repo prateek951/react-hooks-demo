@@ -1,46 +1,44 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from "react";
 
-import Summary from './Summary';
+import Summary from "./Summary";
 
-class Character extends Component {
-  state = { loadedCharacter: {}, isLoading: false };
+const Character = props => {
+  // state = { loadedCharacter: {}, isLoading: false };
 
-  shouldComponentUpdate(nextProps, nextState) {
-    console.log('shouldComponentUpdate');
-    return (
-      nextProps.selectedChar !== this.props.selectedChar ||
-      nextState.loadedCharacter.id !== this.state.loadedCharacter.id ||
-      nextState.isLoading !== this.state.isLoading
-    );
-  }
+  const [loadedCharacter, setLoadedCharacter] = useState({});
+  const [isLoading, setLoading] = useState(false);
 
-  componentDidUpdate(prevProps) {
-    console.log('Component did update');
-    if (prevProps.selectedChar !== this.props.selectedChar) {
-      this.fetchData();
-    }
-  }
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   console.log('shouldComponentUpdate');
+  //   return (
+  //     nextProps.selectedChar !== this.props.selectedChar ||
+  //     nextState.loadedCharacter.id !== this.state.loadedCharacter.id ||
+  //     nextState.isLoading !== this.state.isLoading
+  //   );
+  // }
 
-  componentDidMount() {
-    this.fetchData();
-  }
-
-  fetchData = () => {
+  // componentDidUpdate(prevProps) {
+  //   console.log('Component did update');
+  //   if (prevProps.selectedChar !== this.props.selectedChar) {
+  //     this.fetchData();
+  //   }
+  // }
+  const fetchData = () => {
     console.log(
-      'Sending Http request for new character with id ' +
-        this.props.selectedChar
+      "Sending Http request for new character with id " + props.selectedChar
     );
-    this.setState({ isLoading: true });
-    fetch('https://swapi.co/api/people/' + this.props.selectedChar)
+    // this.setState({ isLoading: true });
+    setLoading(true);
+    fetch("https://swapi.co/api/people/" + props.selectedChar)
       .then(response => {
         if (!response.ok) {
-          throw new Error('Could not fetch person!');
+          throw new Error("Could not fetch person!");
         }
         return response.json();
       })
       .then(charData => {
         const loadedCharacter = {
-          id: this.props.selectedChar,
+          id: props.selectedChar,
           name: charData.name,
           height: charData.height,
           colors: {
@@ -50,37 +48,59 @@ class Character extends Component {
           gender: charData.gender,
           movieCount: charData.films.length
         };
-        this.setState({ loadedCharacter: loadedCharacter, isLoading: false });
+        setLoading(false);
+        setLoadedCharacter(loadedCharacter);
+        // this.setState({ loadedCharacter: loadedCharacter, isLoading: false });
       })
       .catch(err => {
         console.log(err);
-        this.setState({isLoading: false});
+        setLoading(false);
       });
   };
+  //useEffect to replace componentDidMount
+  // useEffect(() => {
+  //   fetchData();
+  // }, []);
+  // useEffect to replace componentDidUpdate
+  //When selected character changes, re-fetch the new selected character
+  //This is just like the componentDidUpdate lifecycle hook
+  //This will run for one render as well as for subsequent renders as well
 
-  componentWillUnmount() {
-    console.log('Too soon...');
+  useEffect(() => {
+    //Fetch the character if the selectedCharacter changes
+    fetchData();
+    return () => {
+      //this code will fire write before the useEffect runs next time
+      //THIS CODE IS RESPONSIBLE FOR DOING THE CLEANUP TASK as componentWillUnmount used to do
+      console.log("Cleaning up....");
+    };
+  }, [props.selectedChar]);
+  // componentDidMount() {
+  //   this.fetchData();
+  // }
+
+  //useEffect will also do the cleanup
+  // componentWillUnmount() {
+  //   console.log('Too soon...');
+  // }
+
+  let content = <p>Loading Character...</p>;
+
+  if (!isLoading && loadedCharacter.id) {
+    content = (
+      <Summary
+        name={loadedCharacter.name}
+        gender={loadedCharacter.gender}
+        height={loadedCharacter.height}
+        hairColor={loadedCharacter.colors.hair}
+        skinColor={loadedCharacter.colors.skin}
+        movieCount={loadedCharacter.movieCount}
+      />
+    );
+  } else if (!isLoading && !loadedCharacter.id) {
+    content = <p>Failed to fetch character.</p>;
   }
-
-  render() {
-    let content = <p>Loading Character...</p>;
-
-    if (!this.state.isLoading && this.state.loadedCharacter.id) {
-      content = (
-        <Summary
-          name={this.state.loadedCharacter.name}
-          gender={this.state.loadedCharacter.gender}
-          height={this.state.loadedCharacter.height}
-          hairColor={this.state.loadedCharacter.colors.hair}
-          skinColor={this.state.loadedCharacter.colors.skin}
-          movieCount={this.state.loadedCharacter.movieCount}
-        />
-      );
-    } else if (!this.state.isLoading && !this.state.loadedCharacter.id) {
-      content = <p>Failed to fetch character.</p>;
-    }
-    return content;
-  }
-}
+  return content;
+};
 
 export default Character;

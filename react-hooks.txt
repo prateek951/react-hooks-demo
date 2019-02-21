@@ -46,9 +46,33 @@ DOM just like the componentDidMount had for class based components
 useEffect runs more often compared to componentDidMount and you can 
 control it 
 
+useEffect with second argument added as an empty array is equivalent 
+to componentDidMount since the empty array will never change and hence 
+the state will not get changed due to this and component will not 
+re-render and thus useEffect will only get triggered once. 
 
+useEffect with an empty array is just like componentDidMount 
+Default was that useEffect ran for every update of the component 
 
+SYNTAX 
 
+useEffect(() => {},[])
 
+This can be used for both componentDidMount 
+or even componentDidUpdate which re-renders the component 
+when the props or the state of the component changes 
+
+We can also make use of useEffect for the cleanup task that we want 
+to do like what we use to do in componentWillUnmount() 
+
+When you destroy the component also then the callback function will fire 
+for cleanup task in the useEffect 
+
+useEffect(() => {
+    fetchData();
+    return () => { 
+        console.log('I WILL DO THE CLEANUP work just like componentWillUnmount used to do');
+    }
+},[props.selectedChar])
 
 

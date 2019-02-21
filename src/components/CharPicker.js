@@ -28,15 +28,15 @@ const CharPicker = props => {
             name: char.name,
             id: index + 1
           }))
-        );   
+        );
       })
       .catch(err => {
         console.log(err);
         // Set the isLoading to false
         setLoading(false);
       });
-  });
-  
+  }, []);
+
   // componentDidMount() {
 
   // }
